@@ -1,4 +1,4 @@
-# hs — Help Scout CLI for AI-assisted Mechanic support
+# hs — Help Scout CLI for AI-assisted Lightward support (Mechanic, Locksmith, …)
 
 A single-file, zero-dependency Node CLI that lets Claude Code / Codex read Help Scout
 tickets, triage them, and leave **draft** replies for human review. It cannot send
@@ -12,8 +12,9 @@ anything to a customer — that capability intentionally does not exist.
 2. `cp .env.example .env` and paste in the App ID and App Secret.
 3. Verify: `./hs auth` — should print your name. Tokens auto-refresh from here on;
    there is no manual re-auth, ever.
-4. `./hs mailboxes` — grab the Mechanic mailbox id and set `HELPSCOUT_MAILBOX_ID`
-   in `.env` so `./hs list` defaults to it.
+4. `./hs mailboxes` — grab your product's mailbox id and set `HELPSCOUT_MAILBOX_ID`
+   in `.env` so `./hs list` defaults to it (any mailbox is reachable via
+   `--mailbox <id>`).
 5. Fill in the codebase locations section at the bottom of `CLAUDE.md`.
 
 Optional: `ln -s "$PWD/hs" /usr/local/bin/hs` to call it from anywhere.
@@ -34,8 +35,10 @@ and safety tests offline.
 
 - **Draft-only**: no send command exists; every customer-facing word passes through
   your hands in the Help Scout UI.
-- **Network-scoped sessions**: `.claude/settings.json` denies WebFetch/WebSearch/curl
-  in this project, so a prompt-injected session has no exfiltration channel.
+- **Network-scoped sessions**: `.claude/settings.json` denies WebSearch/curl/wget and
+  pre-approves web fetches only for product docs (tasks.mechanic.dev,
+  learn.mechanic.dev, shopify.dev); any other domain requires explicit human
+  approval, so a prompt-injected session has no quiet exfiltration channel.
 - **Visible text only**: HTML is reduced to what a human would see — hidden elements,
   comments, script/style, and zero-width/bidi characters are stripped.
 - **Untrusted markers + injection scan**: customer content is wrapped in explicit
