@@ -265,15 +265,30 @@ async function cmdMailboxes(flags) {
   }
 }
 
-async function cmdList(flags) {
-  const params = new URLSearchParams();
-  const mailbox = flags.mailbox || process.env.HELPSCOUT_MAILBOX_ID;
+// The working mailbox is fixed in .env — sessions cannot switch mailboxes.
+async function requireMailbox() {
+  const mailbox = process.env.HELPSCOUT_MAILBOX_ID;
   if (!mailbox) {
-    process.stderr.write('error: a mailbox is required — pass --mailbox <id> or set HELPSCOUT_MAILBOX_ID in .env\navailable mailboxes:\n');
+    process.stderr.write('error: set HELPSCOUT_MAILBOX_ID in .env — this workspace operates on exactly one mailbox\navailable mailboxes:\n');
     await cmdMailboxes({});
     process.exit(1);
   }
-  params.set('mailbox', String(mailbox));
+  return String(mailbox);
+}
+
+// Fetch a conversation and refuse to touch it if it lives outside the working mailbox.
+async function getScopedConversation(id, embedThreads) {
+  const mailbox = await requireMailbox();
+  const conv = await api('GET', `/conversations/${id}${embedThreads ? '?embed=threads' : ''}`);
+  if (String(conv.mailboxId) !== mailbox) {
+    die(`conversation ${id} is in mailbox ${conv.mailboxId}, but this workspace is scoped to mailbox ${mailbox} — change HELPSCOUT_MAILBOX_ID in .env to work that mailbox`);
+  }
+  return conv;
+}
+
+async function cmdList(flags) {
+  const params = new URLSearchParams();
+  params.set('mailbox', await requireMailbox());
   params.set('status', String(flags.status || 'active'));
   if (flags.tag) params.set('tag', String(flags.tag));
   if (flags.assigned) params.set('assigned_to', String(flags.assigned));
@@ -305,7 +320,7 @@ async function cmdList(flags) {
 
 async function cmdShow(id, flags) {
   if (!id) die('usage: hs show <conversation-id>');
-  const conv = await api('GET', `/conversations/${id}?embed=threads`);
+  const conv = await getScopedConversation(id, true);
   if (flags.json) return print(JSON.stringify(conv, null, 2));
 
   const tags = (conv.tags || []).map((t) => t.tag).join(', ') || 'none';
@@ -358,7 +373,7 @@ async function cmdShow(id, flags) {
 
 async function cmdAttachments(id, flags) {
   if (!id) die('usage: hs attachments <conversation-id> [--dir <path>]');
-  const conv = await api('GET', `/conversations/${id}?embed=threads`);
+  const conv = await getScopedConversation(id, true);
   const dir = String(flags.dir || path.join(os.tmpdir(), 'hs-attachments', String(id)));
   const all = [];
   for (const t of conv._embedded?.threads || []) {
@@ -389,7 +404,7 @@ async function cmdDraft(id, flags) {
   else text = await readStdin();
   if (!text || !text.trim()) die('empty draft body');
 
-  const conv = await api('GET', `/conversations/${id}`);
+  const conv = await getScopedConversation(id);
   const customerId = conv.primaryCustomer?.id;
   if (!customerId) die('could not determine the customer on this conversation');
   const me = await getMe();
@@ -411,6 +426,7 @@ async function cmdNote(id, flags) {
   else if (typeof flags.text === 'string') text = flags.text;
   else text = await readStdin();
   if (!text || !text.trim()) die('empty note body');
+  await getScopedConversation(id);
   const me = await getMe();
   await api('POST', `/conversations/${id}/notes`, { text: textToHtml(text), user: me.id });
   print(`internal note added to conversation ${id}`);
@@ -418,7 +434,7 @@ async function cmdNote(id, flags) {
 
 async function cmdTag(id, flags) {
   if (!id || (!flags.add && !flags.remove)) die('usage: hs tag <conversation-id> --add <tag> [--add <tag>] [--remove <tag>]');
-  const conv = await api('GET', `/conversations/${id}`);
+  const conv = await getScopedConversation(id);
   const tags = new Set((conv.tags || []).map((t) => t.tag));
   for (const t of [].concat(flags.add || [])) if (t !== true) tags.add(String(t));
   for (const t of [].concat(flags.remove || [])) tags.delete(String(t));
@@ -429,6 +445,7 @@ async function cmdTag(id, flags) {
 async function cmdStatus(id, value) {
   const valid = ['active', 'pending', 'closed', 'spam'];
   if (!id || !valid.includes(value)) die(`usage: hs status <conversation-id> <${valid.join('|')}>`);
+  await getScopedConversation(id);
   await api('PATCH', `/conversations/${id}`, { op: 'replace', path: '/status', value });
   print(`conversation ${id} status set to ${value}`);
 }
@@ -489,9 +506,8 @@ setup
 
 read
   hs mailboxes                     list mailboxes (id, name, email)
-  hs list --mailbox <id> [--status active|pending|closed|open|spam|all]
+  hs list [--status active|pending|closed|open|spam|all]
           [--tag <tag>] [--assigned <userId>] [--query <hs query>] [--page <n>]
-          (mailbox required; HELPSCOUT_MAILBOX_ID serves as the default)
   hs show <id>                     full conversation with threads + attachments
   hs attachments <id> [--dir <p>]  download allowlisted attachment types (default: tmp dir)
 
@@ -505,8 +521,10 @@ misc
   hs selftest                      run built-in sanitizer/safety tests (no network)
   any read command accepts --json for raw API output
 
-env: HELPSCOUT_APP_ID, HELPSCOUT_APP_SECRET (required; .env supported)
-     HELPSCOUT_MAILBOX_ID (default mailbox for hs list)`;
+env (in .env next to this script): HELPSCOUT_APP_ID, HELPSCOUT_APP_SECRET,
+     HELPSCOUT_MAILBOX_ID — all required. The workspace operates on exactly one
+     mailbox; every command refuses conversations outside it. To work a different
+     mailbox, change HELPSCOUT_MAILBOX_ID in .env.`;
 
 async function main() {
   loadDotEnv();

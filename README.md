@@ -13,8 +13,9 @@ anything to a customer — that capability intentionally does not exist.
 3. Verify: `./hs auth` — should print your name. Tokens auto-refresh from here on;
    there is no manual re-auth, ever.
 4. `./hs mailboxes` — grab your product's mailbox id and set `HELPSCOUT_MAILBOX_ID`
-   in `.env`. A mailbox is required for `./hs list` — you work one mailbox at a
-   time (`--mailbox <id>` overrides per-command).
+   in `.env` (required). The workspace is scoped to exactly one mailbox: every
+   command refuses conversations outside it, and switching mailboxes means a human
+   editing `.env` — an agent can't do it mid-session.
 5. Fill in the codebase locations section at the bottom of `CLAUDE.md`.
 
 Optional: `ln -s "$PWD/hs" /usr/local/bin/hs` to call it from anywhere.
