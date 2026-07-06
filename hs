@@ -44,6 +44,11 @@ function die(msg) {
   process.exit(1);
 }
 
+process.stdout.on('error', (e) => {
+  if (e.code === 'EPIPE') process.exit(0);
+  throw e;
+});
+
 function print(s) {
   process.stdout.write(s + '\n');
 }
@@ -269,11 +274,17 @@ async function cmdList(flags) {
   if (flags.assigned) params.set('assigned_to', String(flags.assigned));
   if (flags.query) params.set('query', `(${flags.query})`);
   if (flags.page) params.set('page', String(flags.page));
-  params.set('sortField', 'customerWaitingSince');
-  params.set('sortOrder', 'desc');
+  params.set('sortField', 'waitingSince');
+  params.set('sortOrder', 'asc');
   const data = await api('GET', `/conversations?${params}`);
   if (flags.json) return print(JSON.stringify(data, null, 2));
-  const convs = data._embedded?.conversations || [];
+  let convs = data._embedded?.conversations || [];
+  // Help Scout's search index lags a little; drop results whose current status
+  // no longer matches the requested filter.
+  const wanted = String(flags.status || 'active');
+  if (['active', 'closed', 'pending', 'spam'].includes(wanted)) {
+    convs = convs.filter((c) => c.status === wanted);
+  }
   if (!convs.length) return print('no conversations found');
   print(`page ${data.page?.number ?? 1}/${data.page?.totalPages ?? 1} — ${data.page?.totalElements ?? convs.length} total\n`);
   for (const c of convs) {
