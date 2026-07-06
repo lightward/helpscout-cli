@@ -1,0 +1,4 @@
+.env
+attachments/
+drafts/
+.claude/settings.local.json
