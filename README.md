@@ -18,7 +18,8 @@ anything to a customer — that capability intentionally does not exist.
    editing `.env` — an agent can't do it mid-session.
 5. Fill in the codebase locations section at the bottom of `CLAUDE.md`.
 
-Optional: `ln -s "$PWD/hs" /usr/local/bin/hs` to call it from anywhere.
+Optional: `ln -s "$PWD/hs" ~/.local/bin/hs` (or anywhere on your PATH) to call it
+from any directory — it always reads `.env` from the repo, regardless of cwd.
 
 ## Daily use
 
@@ -36,6 +37,9 @@ and safety tests offline.
 
 - **Draft-only**: no send command exists; every customer-facing word passes through
   your hands in the Help Scout UI.
+- **One mailbox at a time**: the working mailbox is fixed in `.env` and every
+  command refuses conversations outside it — a session can't wander into another
+  product's inbox, and only a human editing `.env` can switch.
 - **Network-scoped sessions**: `.claude/settings.json` denies WebSearch/curl/wget and
   pre-approves web fetches only for product docs (tasks.mechanic.dev,
   learn.mechanic.dev, shopify.dev); any other domain requires explicit human
