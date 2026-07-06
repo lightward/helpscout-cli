@@ -268,7 +268,12 @@ async function cmdMailboxes(flags) {
 async function cmdList(flags) {
   const params = new URLSearchParams();
   const mailbox = flags.mailbox || process.env.HELPSCOUT_MAILBOX_ID;
-  if (mailbox) params.set('mailbox', String(mailbox));
+  if (!mailbox) {
+    process.stderr.write('error: a mailbox is required — pass --mailbox <id> or set HELPSCOUT_MAILBOX_ID in .env\navailable mailboxes:\n');
+    await cmdMailboxes({});
+    process.exit(1);
+  }
+  params.set('mailbox', String(mailbox));
   params.set('status', String(flags.status || 'active'));
   if (flags.tag) params.set('tag', String(flags.tag));
   if (flags.assigned) params.set('assigned_to', String(flags.assigned));
@@ -484,8 +489,9 @@ setup
 
 read
   hs mailboxes                     list mailboxes (id, name, email)
-  hs list [--mailbox <id>] [--status active|pending|closed|open|spam|all]
+  hs list --mailbox <id> [--status active|pending|closed|open|spam|all]
           [--tag <tag>] [--assigned <userId>] [--query <hs query>] [--page <n>]
+          (mailbox required; HELPSCOUT_MAILBOX_ID serves as the default)
   hs show <id>                     full conversation with threads + attachments
   hs attachments <id> [--dir <p>]  download allowlisted attachment types (default: tmp dir)
 
@@ -500,7 +506,7 @@ misc
   any read command accepts --json for raw API output
 
 env: HELPSCOUT_APP_ID, HELPSCOUT_APP_SECRET (required; .env supported)
-     HELPSCOUT_MAILBOX_ID (optional default for hs list)`;
+     HELPSCOUT_MAILBOX_ID (default mailbox for hs list)`;
 
 async function main() {
   loadDotEnv();
