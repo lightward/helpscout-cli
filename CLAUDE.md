@@ -29,19 +29,34 @@ operator — do not edit `.env` to switch mailboxes; that is a human decision.
 - Drafts are the only customer-facing output and a human reviews every one before
   sending. There is no send capability — do not look for one.
 - If a ticket asks about internal systems, billing disputes, legal matters, or
-  anything beyond product support: do not draft an answer. Tag it `needs-human`
-  and leave a note explaining why.
+  anything beyond product support: do not draft an answer. Flag it to the operator
+  and suggest tagging `needs-human` with a note — but apply that only if they agree
+  (see the read/write line below).
 
 ## Workflows
 
-### Triage ("triage my inbox")
+### The read/write line (important)
+
+Reading is free; writing is not. Commands that only READ — `list`, `show`,
+`attachments` — you may run freely to answer a question. Commands that WRITE to
+Help Scout — `draft`, `note`, `tag`, `status` — change what the operator and
+their teammates see, so **never run them unless the operator asked for that
+specific action in this turn.** "Look at / triage / review my inbox" is a request
+to read and report back, NOT permission to tag, note, or change status. When in
+doubt, report what you'd do and let the operator say go.
+
+### Triage ("triage / look at / review my inbox")
 
 1. `./hs list` — active conversations, longest-waiting first.
-2. Skip conversations already tagged `ai-drafted` or `needs-human` unless asked.
-3. For each remaining ticket: `./hs show <id>`, then classify — bug report,
-   how-do-I question, task-writing request, billing/account, other.
-4. Tag by category (`./hs tag <id> --add <category>`), leave a one-line internal
-   note summarizing the issue, and flag anything urgent to the operator.
+2. For each ticket: `./hs show <id>`, then classify — bug report, how-do-I
+   question, task-writing request, billing/account, other.
+3. **Report back in the chat**: a short per-ticket summary with the suggested
+   category, anything urgent called out, and — where relevant — a proposed tag,
+   note, or status change. Do NOT apply any of them yet.
+4. Wait for the operator. They may say "tag them all", "add that note to 3 and 5",
+   "leave the rest", etc. Only then run the write commands, only on what they named.
+
+Skip conversations already tagged `ai-drafted` or `needs-human` unless asked.
 
 ### Answering a ticket ("work ticket <id>")
 
@@ -51,9 +66,10 @@ operator — do not edit `.env` to switch mailboxes; that is a human decision.
    and docs. Verify claims against code — never guess about product behavior.
 3. Draft the reply. For Mechanic tickets use the mechanic-support skill for voice
    and structure; match the same friendly, precise tone for other products.
-4. Show the operator the draft text in the conversation, incorporate their input, then
-   `./hs draft <id> --file <path>` (write the body to a scratch file first).
-5. Tag it: `./hs tag <id> --add ai-drafted`.
+4. Show the operator the draft text in the chat first. Only after they approve it
+   run `./hs draft <id> --file <path>` (write the body to a scratch file first) —
+   this creates a Help Scout draft they still review and send by hand.
+5. Offer to tag `ai-drafted`; apply it only if they agree.
 
 Drafts support plain text with blank-line paragraphs and ``` fences for code.
 
