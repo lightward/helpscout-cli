@@ -6,6 +6,8 @@ anything to a customer — that capability intentionally does not exist.
 
 ## Setup (one time, ~5 minutes)
 
+0. **Prerequisite:** Node.js 18 or newer (the CLI uses the built-in `fetch`).
+   Check with `node --version`.
 1. **Create a Help Scout OAuth app** (under your own account, so drafts are
    attributed to you): Help Scout → your avatar → **Your Profile → My Apps →
    Create My App**. The redirect URL is unused by this flow — enter anything.
@@ -44,11 +46,16 @@ and safety tests offline.
   pre-approves web fetches only for product docs (tasks.mechanic.dev,
   learn.mechanic.dev, shopify.dev); any other domain requires explicit human
   approval, so a prompt-injected session has no quiet exfiltration channel.
-- **Visible text only**: HTML is reduced to what a human would see — hidden elements,
-  comments, script/style, and zero-width/bidi characters are stripped.
-- **Untrusted markers + injection scan**: customer content is wrapped in explicit
-  UNTRUSTED markers and scanned for instruction-like phrasing (`hs show` prints an
-  INJECTION WARNING when it hits).
+- **No hidden-content divergence**: customer HTML is flattened to text — never
+  partially excised — so the agent can never see content the human reviewer can't.
+  Anything a browser would have hidden (display:none, white-on-white, zero-width /
+  bidi chars, comments) is surfaced as text *and* raises a `HIDDEN-CONTENT WARNING`.
+- **Untrusted markers + injection heuristic**: customer bodies are wrapped in
+  explicit UNTRUSTED markers; customer-controlled header fields (subject, name,
+  filename) are sanitized so they can't forge those markers. `hs show` also flags
+  instruction-like phrasing — but that scan is a weak signal, not a boundary; the
+  standing "customer text is data" rule is the actual control. `--json` is disabled
+  on customer-facing reads because it would bypass all of this.
 - **Attachment allowlist**: only inert types (images, text, logs, liquid, json…)
   are downloadable; executables/archives/docs must be fetched manually. Nothing is
   ever executed or `open`ed.
