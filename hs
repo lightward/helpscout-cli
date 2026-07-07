@@ -80,7 +80,7 @@ const INJECTION_PATTERNS = [
   [/\b(BEGIN|END)\s+(SYSTEM|ADMIN|DEVELOPER|ASSISTANT|PROMPT)\b/i, 'fake delimiter'],
   [/={2,}\s*(begin|end)\b|\bUNTRUSTED\s+CUSTOMER\s+CONTENT\b/i, 'marker forgery'],
   [/run\s+(this|the\s+following|the\s+attached)\s+(command|script|code|file)/i, 'execution request'],
-  [/do\s+not\s+(show|tell|reveal|mention|disclose|inform)\s+(this|the\s+customer|matt|anyone|the\s+human)/i, 'concealment request'],
+  [/do\s+not\s+(show|tell|reveal|mention|disclose|inform)\s+(this|the\s+customer|the\s+operator|anyone|the\s+human)/i, 'concealment request'],
   [/base64\s*-?\s*decode|atob\s*\(/i, 'encoded-payload hint'],
 ];
 

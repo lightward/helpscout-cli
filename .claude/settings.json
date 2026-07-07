@@ -2,10 +2,7 @@
   "permissions": {
     "allow": [
       "Bash(./hs:*)",
-      "Bash(./hs)",
-      "WebFetch(domain:tasks.mechanic.dev)",
-      "WebFetch(domain:learn.mechanic.dev)",
-      "WebFetch(domain:shopify.dev)"
+      "Bash(./hs)"
     ],
     "deny": [
       "WebSearch",

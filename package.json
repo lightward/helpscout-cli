@@ -1,10 +1,9 @@
 {
   "name": "helpscout-cli",
   "version": "1.0.0",
-  "description": "Draft-only Help Scout Mailbox CLI for AI-assisted Lightward support",
-  "private": true,
+  "description": "Draft-only Help Scout Mailbox CLI for AI-assisted customer support",
   "bin": { "hs": "./hs" },
   "scripts": { "test": "./hs selftest" },
   "engines": { "node": ">=18" },
-  "license": "UNLICENSED"
+  "license": "MIT"
 }
