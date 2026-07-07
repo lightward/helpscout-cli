@@ -348,16 +348,25 @@ function escapeHtml(t) {
     .replace(/"/g, '&quot;');
 }
 
+// Blank-line-separated prose -> paragraphs. Help Scout's compose editor zeroes out
+// default <p> margins, so bare adjacent <p>s render as single line breaks and the
+// author's blank lines vanish visually. Insert an empty paragraph between blocks —
+// exactly what the editor emits on a double-Enter — so spacing survives and a
+// hand-edited draft round-trips cleanly.
+function proseToHtml(text) {
+  const paras = String(text).trim().split(/\n{2,}/).filter(Boolean);
+  return paras.map((p) => `<p>${escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('<p><br></p>');
+}
+
 // Plain text (with optional ``` fences) -> HTML the Help Scout editor renders well.
 // An unbalanced fence is treated as literal text, not an open-ended <pre>.
 function textToHtml(text) {
-  let src = String(text).replace(/\r\n/g, '\n');
+  const src = String(text).replace(/\r\n/g, '\n');
   const fenceCount = (src.match(/^```[a-z]*\s*$/gim) || []).length;
   if (fenceCount % 2 !== 0) {
     // Odd number of fences: don't let a stray fence swallow the rest as code.
     // Escape the whole body as prose instead.
-    const paras = src.trim().split(/\n{2,}/).filter(Boolean);
-    return paras.map((p) => `<p>${escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('');
+    return proseToHtml(src);
   }
   const segs = src.split(/^```[a-z]*\s*$/im);
   let html = '';
@@ -365,8 +374,7 @@ function textToHtml(text) {
     if (i % 2 === 1) {
       html += `<pre>${escapeHtml(seg.replace(/^\n+|\n+$/g, ''))}</pre>`;
     } else {
-      const paras = seg.trim().split(/\n{2,}/).filter(Boolean);
-      html += paras.map((p) => `<p>${escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('');
+      html += proseToHtml(seg);
     }
   });
   return html;
@@ -692,6 +700,10 @@ function cmdSelftest() {
   check('code fenced as pre', html.includes('<pre>{% assign x = 1 %}</pre>'));
   check('html escaped in text', html.includes('&amp; bye &lt;3'));
   check('single newline is br', textToHtml('a\nb').includes('a<br>b'));
+  check('blank line becomes spacer paragraph',
+    textToHtml('First para.\n\nSecond para.') === '<p>First para.</p><p><br></p><p>Second para.</p>');
+  check('single paragraph has no trailing spacer',
+    textToHtml('Just one.') === '<p>Just one.</p>');
   check('unbalanced fence does not open a pre',
     !textToHtml('intro\n```\ncode\nmore prose').includes('<pre>'));
 
