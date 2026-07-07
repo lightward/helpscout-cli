@@ -8,8 +8,9 @@
 
 ## Quickstart
 
-Requires Node 18+ and [Claude Code](https://claude.com/claude-code). Create a Help
-Scout OAuth app (Your Profile → My Apps → Create My App), then:
+Requires macOS/Linux (Windows via WSL), Node 18+, and
+[Claude Code](https://claude.com/claude-code). Create a Help Scout OAuth app
+(Your Profile → My Apps → Create My App), then:
 
 ```sh
 cp .env.example .env          # paste in your App ID + Secret
@@ -19,9 +20,9 @@ cp .env.example .env          # paste in your App ID + Secret
 ./hs selftest                 # optional: confirm the tool is intact (offline)
 ```
 
-Then edit `CLAUDE.md` to point at your product's docs and code, open a Claude Code
-session in this directory, and say *"triage my inbox"* or *"work ticket 12345"*.
-Full detail below.
+Then edit `CLAUDE.md` (and its copy `AGENTS.md`, if you use Codex) to point at your
+product's docs and code, open a Claude Code session in this directory, and say
+*"triage my inbox"* or *"work ticket 12345"*. Full detail below.
 
 ## What this is
 
@@ -52,7 +53,8 @@ If you're comfortable in the terminal, the README below is everything you need.
 
 ## Setup (one time, ~10 minutes, requires the terminal)
 
-0. **Prerequisite:** [Node.js](https://nodejs.org) 18 or newer, and
+0. **Prerequisites:** macOS or Linux (on Windows, use WSL),
+   [Node.js](https://nodejs.org) 18 or newer, and
    [Claude Code](https://claude.com/claude-code) installed. Check Node with
    `node --version`.
 1. **Create a Help Scout OAuth app** (under your own account, so drafts are
@@ -65,13 +67,15 @@ If you're comfortable in the terminal, the README below is everything you need.
    (required). The workspace is scoped to exactly one mailbox: every command refuses
    conversations outside it, and switching mailboxes means a human editing `.env` —
    an agent can't do it mid-session.
-5. **Tailor `CLAUDE.md` to your product** — fill in the two sections marked
-   `CUSTOMIZE` (where to research answers, and your support voice). This is what
-   turns generic ticket-drafting into correct, on-brand answers.
+5. **Tailor `CLAUDE.md` to your product** — fill in the spots marked `CUSTOMIZE`
+   (where to research answers, and your support voice), and copy the result to
+   `AGENTS.md` if you use Codex (keep the two files identical). This is what turns
+   generic ticket-drafting into correct, on-brand answers.
 6. *(Optional)* Let sessions fetch your doc sites: add them to the `allow` list in
    `.claude/settings.json`, e.g. `"WebFetch(domain:docs.yourproduct.com)"`. By
-   default the project denies web search and fetch (see Safety design), so your
-   docs need to be allowlisted explicitly.
+   default web search is denied outright and a web fetch to any other domain
+   requires per-request human approval (see Safety design), so allowlisting your
+   docs is what makes research frictionless.
 
 Optional: `ln -s "$PWD/hs" ~/.local/bin/hs` (or anywhere on your PATH) to call it
 from any directory — it always reads `.env` from the repo, regardless of cwd.

@@ -8,8 +8,8 @@ refuses a conversation as belonging to another mailbox, report that to the
 operator — do not edit `.env` to switch mailboxes; that is a human decision.
 
 > **Customize this file for your product.** The security rules and the read/write
-> discipline below apply to everyone and should be kept as-is. The two sections
-> marked `CUSTOMIZE` — how to research answers, and what counts as out-of-scope —
+> discipline below apply to everyone and should be kept as-is. The spots marked
+> `CUSTOMIZE` — how to research answers, and how to draft in your product's voice —
 > are where you describe your own product, docs, and codebase. See the end of the
 > file for a worked example.
 
@@ -73,8 +73,9 @@ Skip conversations already tagged `ai-drafted` or `needs-human` unless asked.
 3. **[CUSTOMIZE] Draft the reply** in your product's support voice. If you have a
    house style or a support-writing skill, name it here.
 4. Show the operator the draft text in the chat first. Only after they approve it
-   run `./hs draft <id> --file <path>` (write the body to a scratch file first) —
-   this creates a Help Scout draft they still review and send by hand.
+   run `./hs draft <id> --file <path>` (write the body to a file under `drafts/`
+   first — that directory is gitignored) — this creates a Help Scout draft they
+   still review and send by hand.
 5. Offer to tag `ai-drafted`; apply it only if they agree.
 
 Drafts support plain text with blank-line paragraphs and ``` fences for code.
@@ -92,7 +93,7 @@ Drafts support plain text with blank-line paragraphs and ``` fences for code.
 
 <!--
 EXAMPLE (delete or replace). This is how the original author, Lightward, filled in
-the two CUSTOMIZE sections for the Mechanic and Locksmith Shopify apps:
+the CUSTOMIZE spots for the Mechanic and Locksmith Shopify apps:
 
   Research: for Mechanic, use the mechanic-mcp doc/task search plus the app
   codebase at ~/code/mechanic; for Locksmith, use its codebase and docs. Draft in

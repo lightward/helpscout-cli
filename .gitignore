@@ -1,4 +1,5 @@
 .env
-attachments/
+# local scratch space: draft bodies for `hs draft --file`, ad-hoc attachment dirs
 drafts/
+attachments/
 .claude/settings.local.json

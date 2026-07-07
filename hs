@@ -746,7 +746,7 @@ setup
   hs auth                          verify credentials, cache token (auto-refreshes after)
 
 read
-  hs mailboxes                     list mailboxes (id, name, email)
+  hs mailboxes [--json]            list mailboxes (id, name, email)
   hs list [--status active|pending|closed|open|spam|all]
           [--tag <tag>] [--assigned <userId>] [--query <hs query>] [--page <n>]
   hs show <id>                     full conversation with threads + attachments
@@ -762,9 +762,10 @@ misc
   hs selftest                      run built-in sanitizer/safety tests (no network)
 
 env (in .env next to this script): HELPSCOUT_APP_ID, HELPSCOUT_APP_SECRET,
-     HELPSCOUT_MAILBOX_ID — all required. The workspace operates on exactly one
-     mailbox; every command refuses conversations outside it. To work a different
-     mailbox, change HELPSCOUT_MAILBOX_ID in .env.`;
+     HELPSCOUT_MAILBOX_ID. The workspace operates on exactly one mailbox and every
+     conversation command refuses conversations outside it. "auth" and "mailboxes"
+     work without HELPSCOUT_MAILBOX_ID — that's how you find the id to set. To work
+     a different mailbox, change HELPSCOUT_MAILBOX_ID in .env.`;
 
 async function main() {
   loadDotEnv();
