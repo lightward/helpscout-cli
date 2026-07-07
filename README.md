@@ -1,5 +1,11 @@
 # hs — AI-assisted Help Scout support for Lightward (Mechanic, Locksmith, …)
 
+> **Status & support:** A personal tool Matt built and uses. Shared in case it's
+> useful to you — but it's experimental and **not officially supported**. There's
+> no help desk here: if you run it, you're on your own for setup and any breakage
+> (the code is short and readable, and Claude Code is good at explaining it). Use
+> at your own discretion.
+
 ## What this is
 
 A small tool that lets an AI coding assistant (Claude Code or Codex) help you work
@@ -24,9 +30,7 @@ Using this takes some comfort with the terminal. Setup means creating an app in 
 Scout, editing a text config file, and running commands in a terminal — a one-time,
 ~10-minute job, but a technical one. Day to day you drive it by talking to Claude
 Code, which is friendly, but it still lives in a developer tool, not a polished app.
-If you're not comfortable with the terminal, grab a few minutes with someone who is
-to get set up; after that the daily use is mostly conversation. Not sure it's for
-you? Ask in the team channel before diving in.
+If you're comfortable in the terminal, the README below is everything you need.
 
 ## Setup (one time, ~10 minutes, requires the terminal)
 
