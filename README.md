@@ -6,6 +6,23 @@
 > readable, and Claude Code is good at walking you through setup or explaining
 > anything that breaks.
 
+## Quickstart
+
+Requires Node 18+ and [Claude Code](https://claude.com/claude-code). Create a Help
+Scout OAuth app (Your Profile → My Apps → Create My App), then:
+
+```sh
+cp .env.example .env          # paste in your App ID + Secret
+./hs auth                     # verify credentials (prints your name)
+./hs mailboxes                # find your mailbox id...
+#                             # ...then set HELPSCOUT_MAILBOX_ID in .env
+./hs selftest                 # optional: confirm the tool is intact (offline)
+```
+
+Then edit `CLAUDE.md` to point at your product's docs and code, open a Claude Code
+session in this directory, and say *"triage my inbox"* or *"work ticket 12345"*.
+Full detail below.
+
 ## What this is
 
 A small tool that lets an AI coding assistant (Claude Code or Codex) help you work
@@ -127,4 +144,6 @@ example (the author's Shopify-app setup) you can replace.
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Provided as-is, without warranty or support.
+MIT — see [LICENSE](LICENSE). Provided as-is, without warranty or support. This is
+shared as a finished artifact to fork and adapt, not a maintained project — issues
+and pull requests aren't monitored. Fork it and make it yours.
