@@ -1,10 +1,10 @@
 # hs — AI-assisted Help Scout support for Lightward (Mechanic, Locksmith, …)
 
-> **Status & support:** A personal tool Matt built and uses. Shared in case it's
-> useful to you — but it's experimental and **not officially supported**. There's
-> no help desk here: if you run it, you're on your own for setup and any breakage
-> (the code is short and readable, and Claude Code is good at explaining it). Use
-> at your own discretion.
+> **Status:** A personal tool Matt built and uses, shared in case it's handy for
+> you too. It's experimental and comes as-is — Matt isn't maintaining it as a team
+> tool, so treat it as something to explore rather than something with a support
+> line behind it. The good news: the code is short and readable, and Claude Code is
+> genuinely good at walking you through setup or explaining anything that breaks.
 
 ## What this is
 
