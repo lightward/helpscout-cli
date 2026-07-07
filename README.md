@@ -1,13 +1,38 @@
-# hs — Help Scout CLI for AI-assisted Lightward support (Mechanic, Locksmith, …)
+# hs — AI-assisted Help Scout support for Lightward (Mechanic, Locksmith, …)
 
-A single-file, zero-dependency Node CLI that lets Claude Code / Codex read Help Scout
-tickets, triage them, and leave **draft** replies for human review. It cannot send
-anything to a customer — that capability intentionally does not exist.
+## What this is
 
-## Setup (one time, ~5 minutes)
+A small tool that lets an AI coding assistant (Claude Code or Codex) help you work
+Help Scout tickets. It reads a ticket, researches the real answer against our
+product docs and app code, and writes a **draft** reply that lands in Help Scout for
+you to review and send. It can also help triage — reading the inbox and summarizing
+what's waiting. You stay in control the whole way:
 
-0. **Prerequisite:** Node.js 18 or newer (the CLI uses the built-in `fetch`).
-   Check with `node --version`.
+- **It can never send anything to a customer.** There is no send button in this tool
+  at all. Everything it produces is a draft that you read, edit, and send yourself
+  in Help Scout, exactly as you do today.
+- **It only acts when you ask.** "Look at my inbox" means it reads and reports back.
+  It won't tag, note, or draft anything until you tell it to.
+- **It works one mailbox at a time** — Mechanic *or* Locksmith, set once during setup.
+
+The point is to end the copy-paste: instead of pasting a ticket into Claude and the
+answer back into Help Scout, the assistant reads and drafts in place.
+
+## Heads up: this is not plug-and-play
+
+Using this takes some comfort with the terminal. Setup means creating an app in Help
+Scout, editing a text config file, and running commands in a terminal — a one-time,
+~10-minute job, but a technical one. Day to day you drive it by talking to Claude
+Code, which is friendly, but it still lives in a developer tool, not a polished app.
+If you're not comfortable with the terminal, grab a few minutes with someone who is
+to get set up; after that the daily use is mostly conversation. Not sure it's for
+you? Ask in the team channel before diving in.
+
+## Setup (one time, ~10 minutes, requires the terminal)
+
+0. **Prerequisite:** [Node.js](https://nodejs.org) 18 or newer, and
+   [Claude Code](https://claude.com/claude-code) installed. Check Node with
+   `node --version`.
 1. **Create a Help Scout OAuth app** (under your own account, so drafts are
    attributed to you): Help Scout → your avatar → **Your Profile → My Apps →
    Create My App**. The redirect URL is unused by this flow — enter anything.
@@ -27,13 +52,18 @@ from any directory — it always reads `.env` from the repo, regardless of cwd.
 
 Start a Claude Code (or Codex) session in this directory and say things like:
 
-- *"triage my inbox"* — lists waiting tickets, categorizes, tags, flags urgent ones
-- *"work ticket 12345"* — reads the thread, researches against the codebase/docs,
-  drafts a reply with you, leaves it as a Help Scout draft for you to send
-- Skips anything already tagged `ai-drafted` / `needs-human`
+- *"triage my inbox"* — reads the waiting tickets and reports back a summary with
+  suggestions (urgent items, proposed tags/notes). It applies nothing until you say
+  so — e.g. "tag those two" or "add that note to #5".
+- *"work ticket 12345"* — reads the thread, researches against the docs/codebase,
+  and drafts a reply *with you*; once you approve the wording, it leaves the draft
+  in Help Scout for you to send.
+
+It skips tickets already tagged `ai-drafted` / `needs-human` unless you ask.
 
 Run `./hs help` for the raw command reference. `./hs selftest` runs the sanitizer
-and safety tests offline.
+and safety tests offline (no network, no account needed) — a quick way to confirm
+the tool is intact after a change.
 
 ## Safety design
 
@@ -63,9 +93,15 @@ and safety tests offline.
   instructions, never run attachments, no secrets in drafts, escalate non-support
   topics with the `needs-human` tag).
 
-## Notes
+## Notes (for the technically inclined)
 
+- `hs` is a single Node script with **no dependencies** — nothing to `npm install`.
+  Node 18+ is the only requirement (it uses the built-in `fetch`).
 - Auth is OAuth2 client-credentials; the token (48 h) is cached at
   `~/.helpscout-cli/token.json` (0600) and refreshes automatically.
 - Attachments download to `$TMPDIR/hs-attachments/<conversation-id>/` by default.
-- All read commands take `--json` for raw Mailbox API output.
+- `--json` is available on `hs mailboxes` for raw output, but is intentionally
+  **disabled** on `hs show` / `hs list` — raw JSON would bypass the customer-content
+  neutralization those commands apply.
+- Runs from any directory if symlinked onto your PATH (see the setup section); it
+  always reads `.env` from the repo.
